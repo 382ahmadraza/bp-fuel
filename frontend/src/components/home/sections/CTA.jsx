@@ -15,7 +15,7 @@ export const CTA = () => {
           <Heading level={2} align="center" className="mb-6">
             Ready to Start Your Health Journey?
           </Heading>
-
+  
           <p className="text-xl text-[#424242] mb-8 max-w-2xl mx-auto">
             Join thousands of users who are already taking control of their
             health with BP Fuel's advanced technology.

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Container } from '../../shared/layout/Container';
-import { Icon } from '../../../assets/icons';
+import React from "react";
+import { Container } from "../../shared/layout/Container";
+import { Icon } from "../../../assets/icons";
 
 export const Stats = () => {
   return (
@@ -12,14 +12,15 @@ export const Stats = () => {
               <Icon name="heart" className="w-8 h-8 text-[#4CAF50]" />
             </div>
             <div className="text-4xl font-bold text-[#4CAF50] mb-2">1M+</div>
-            <div className="text-[#424242] font-medium">BP Readings Analyzed</div>
+            <div className="text-[#424242] font-medium">
+              BP Readings Analyzed
+            </div>
             <p className="text-sm text-[#9E9E9E] mt-2">
               Accurate camera-based blood pressure monitoring
             </p>
           </div>
 
           <div className="bg-white p-8 rounded-xl shadow-lg">
-
             <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
               <Icon name="utensils" className="w-8 h-8 text-[#4CAF50]" />
             </div>
@@ -44,4 +45,4 @@ export const Stats = () => {
       </Container>
     </section>
   );
-}
+};
