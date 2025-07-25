@@ -5,3 +5,5 @@ opencv-python
 joblib
 matplotlib
 seaborn
+gonicon
+flask
