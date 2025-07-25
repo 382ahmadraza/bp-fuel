@@ -9,6 +9,11 @@ import { analyzeMeal } from '../utils/health';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
+
+
+const GEMINI_API_KEY = 'AIzaSyC0eXKBxm70jNI1hgQhZzj-QtvVSYWMNqw';
+
+
 export const MealCheck = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -33,32 +38,89 @@ export const MealCheck = () => {
     }
   };
 
-  const simulateMealAnalysis = async (file) => {
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64 = reader.result.split(',')[1]; // remove prefix
+        resolve(base64);
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+  
+
+const simulateMealAnalysis = async (file) => {
+  try {
     setIsAnalyzing(true);
     toast.loading('Analyzing your meal...');
-    
-    // Simulate AI analysis delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Simulate meal analysis results
-    const mealAnalysis = {
-      name: 'Chicken Caesar Salad',
-      calories: 450,
-      protein: 35,
-      carbs: 12,
-      fat: 28
-    };
-    
-    setMealName(mealAnalysis.name);
-    setCalories(mealAnalysis.calories.toString());
-    setProtein(mealAnalysis.protein.toString());
-    setCarbs(mealAnalysis.carbs.toString());
-    setFat(mealAnalysis.fat.toString());
-    
-    setIsAnalyzing(false);
+
+    const base64Image = await convertToBase64(file);
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-pro-vision:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: `You are a nutritionist. Analyze this meal image and return JSON like:
+{
+  "name": "Meal Name",
+  "calories": number,
+  "protein": number,
+  "carbs": number,
+  "fat": number
+}`,
+                },
+                {
+                  inlineData: {
+                    mimeType: 'image/jpeg',
+                    data: base64Image,
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+      }
+    );
+
+    const data = await response.json();
     toast.dismiss();
+
+    const contentText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!contentText) throw new Error('No response from Gemini.');
+
+    let result;
+    try {
+      result = JSON.parse(contentText);
+    } catch (err) {
+      throw new Error('Failed to parse JSON from Gemini response');
+    }
+
+    setMealName(result.name || '');
+    setCalories(result.calories?.toString() || '');
+    setProtein(result.protein?.toString() || '');
+    setCarbs(result.carbs?.toString() || '');
+    setFat(result.fat?.toString() || '');
+
     toast.success('Meal analyzed successfully!');
-  };
+  } catch (error) {
+    console.error('Gemini error:', error);
+    toast.dismiss();
+    toast.error(error.message || 'Could not analyze the meal.');
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
+
+
 
   const handleSubmit = (e) => {
     e.preventDefault();

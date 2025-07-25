@@ -5,6 +5,7 @@ import { Footer } from './components/shared/layout/Footer';
 import { Toaster } from './components/shared/common/Toaster';
 import { ScrollToTop } from './utils/ScrollToTop';
 import { Home } from './pages/Home';
+// import Home from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
 import { BPCheck } from './pages/BPCheck';
 import { MealCheck } from './pages/MealCheck';

@@ -1,57 +1,68 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Modal } from '../shared/common/Modal';
-import { Button } from '../shared/common/Button';
-import { Icon } from '../../assets/icons';
+import  {Button}  from '../shared/common/Button';
+// import { Icon } from '../../assets/icons';
 import { storage } from '../../utils/storage';
 import { getBPLevel } from '../../utils/health';
 import toast from 'react-hot-toast';
+import { FormSelect } from '../shared/common/custom-dropdown';
+import { FormInput } from '../shared/common/custom-input';
 
 export const BPDetectionModal = ({ isOpen, onClose, onResult }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
-  
-  const [isLoading, setIsLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+  age: '',
+  gender: '',
+  diet: '',
+  salt_intake: '',
+  exercise: '',
+  smoker: '',           // 👈 was 'no '
+  alcohol: '',          // 👈 was ' no'
+  prev_conditions: '',
+  height: '',
+  weight: '',
+  cholesterol: 1,
+  gluc: 1,
+});
+
+  const [showCamera, setShowCamera] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Start camera when modal opens
+
+
+
+
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && showCamera) {
       startCamera();
     } else {
       stopCamera();
     }
-    
     return () => stopCamera();
-  }, [isOpen]);
+  }, [isOpen, showCamera]);
 
   const startCamera = async () => {
     try {
       setError('');
-      setCameraReady(false);
-      
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280, min: 640 },
-          height: { ideal: 720, min: 480 },
-          facingMode: 'user'
-        }
+        video: { facingMode: 'user' },
       });
-      
       streamRef.current = stream;
-      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.onloadedmetadata = () => {
           videoRef.current.play();
           setCameraReady(true);
-          toast.success('Camera ready! Position your face in the frame.');
         };
       }
     } catch (err) {
       console.error('Camera error:', err);
-      setError('Camera access denied or not available. Please allow camera access and try again.');
+      setError('Camera access denied');
       toast.error('Camera access denied');
     }
   };
@@ -61,227 +72,223 @@ export const BPDetectionModal = ({ isOpen, onClose, onResult }) => {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
-    
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-    
     setCameraReady(false);
-    setError('');
   };
 
   const captureFrame = () => {
     if (!videoRef.current || !canvasRef.current) return null;
-    
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    // Draw the current video frame to canvas
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    // Return the image data as base64
-    return canvas.toDataURL('image/jpeg', 0.8);
+    const ctx = canvasRef.current.getContext('2d');
+    canvasRef.current.width = videoRef.current.videoWidth;
+    canvasRef.current.height = videoRef.current.videoHeight;
+    ctx.drawImage(videoRef.current, 0, 0);
+    return canvasRef.current.toDataURL('image/jpeg', 0.8);
   };
 
   const detectBP = async () => {
     if (!cameraReady) {
-      toast.error('Please wait for camera to be ready');
+      toast.error('Camera not ready');
       return;
     }
 
     setIsLoading(true);
-    
-    try {
-      // Capture the current frame
-      const frameData = captureFrame();
-      
-      if (!frameData) {
-        throw new Error('Failed to capture frame');
-      }
+    const frameData = captureFrame();
+    const base64Image = frameData?.split(',')[1];
+    if (!base64Image) {
+      toast.error('Image capture failed');
+      return;
+    }
 
-      // Show loading toast
-      toast.loading('Analyzing facial blood flow patterns...', { duration: 4000 });
-      
-      // Simulate API call to BP detection model
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      
-      // Simulate BP detection results
-      const simulatedSystolic = Math.floor(Math.random() * (140 - 100) + 100);
-      const simulatedDiastolic = Math.floor(Math.random() * (90 - 60) + 60);
-      const simulatedPulse = Math.floor(Math.random() * (100 - 60) + 60);
-      
-      const bpLevel = getBPLevel(simulatedSystolic, simulatedDiastolic);
+    try {
+      toast.loading('Analyzing...');
+
+      const payload = {
+        ...formData,
+        prev_conditions: [formData.prev_conditions],
+        image_data: base64Image,
+        age: Number(formData.age),
+        height: Number(formData.height),
+        weight: Number(formData.weight),
+      };
+console.log('Payload:', payload);
+
+      const response = await fetch("http://127.0.0.1:5000/predict_health", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Prediction failed');
+
+console.log('Prediction result:', result);
+
       const now = new Date();
-      
       const reading = {
         id: Date.now().toString(),
-        systolic: simulatedSystolic,
-        diastolic: simulatedDiastolic,
-        pulse: simulatedPulse,
+        systolic: result.systolic_bp,
+        diastolic: result.diastolic_bp,
+        pulse: result.pulse || Math.floor(Math.random() * (100 - 60) + 60),
         date: now.toISOString().split('T')[0],
         time: now.toTimeString().split(' ')[0].slice(0, 5),
-        level: bpLevel.level,
-        capturedImage: frameData // Store the captured frame
+        level: getBPLevel(result.systolic_bp, result.diastolic_bp).level,
+        capturedImage: frameData,
       };
 
-      // Save to storage
       storage.addBPReading(reading);
-      
-      // Close modal and show result
       stopCamera();
       onClose();
-      onResult({ reading, bpLevel });
-      
+      onResult({ reading, bpLevel: getBPLevel(result.systolic_bp, result.diastolic_bp) });
+
       toast.dismiss();
-      toast.success('BP detected successfully from facial analysis!');
-      
-    } catch (error) {
-      console.error('Detection error:', error);
+      toast.success('Prediction complete!');
+    } catch (err) {
+      console.error(err);
       toast.dismiss();
-      toast.error('Detection failed. Please try again.');
+      toast.error(err.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleClose = () => {
-    if (!isLoading) {
-      stopCamera();
-      onClose();
+  const handleFormChange = (e) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.age || !formData.height || !formData.weight) {
+      toast.error('Please fill all fields');
+      return;
     }
+    setShowCamera(true);
+  };
+
+  const handleSelectChange = (name, value) => {
+  setFormData(prev => ({
+    ...prev,
+    [name]: value,
+  }));
+};
+
+
+  const handleClose = () => {
+    stopCamera();
+    setShowCamera(false);
+    onClose();
   };
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={handleClose}
-      title="Blood Pressure Detection"
-      size="lg"
-      showCloseButton={!isLoading}
-    >
-      <div className="space-y-6">
-        {/* Instructions */}
-        <div className="text-center">
-          <p className="text-[#424242] mb-2">
-            Ensure your face is clearly visible in the camera preview below.
-          </p>
-          <p className="text-sm text-[#9E9E9E]">
-            Position yourself in good lighting and look directly at the camera.
-          </p>
+    <Modal isOpen={isOpen} onClose={handleClose} title="Blood Pressure Detection">
+      {!showCamera ? (
+         <div className="mx-auto max-w-lg p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center">Health Information</h2>
+      <form onSubmit={handleFormSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormInput
+            label="Age"
+            name="age"
+            type="number"
+            placeholder="Age"
+            value={formData.age}
+            onChange={handleFormChange}
+          />
+          <FormSelect
+            label="Gender"
+            name="gender"
+            value={formData.gender}
+            onChange={(value) => handleSelectChange("gender", value)}
+            placeholder="Select Gender"
+            options={["Male", "Female"]}
+          />
+          <FormSelect
+            label="Diet"
+            name="diet"
+            value={formData.diet}
+            onChange={(value) => handleSelectChange("diet", value)}
+            placeholder="Select Diet"
+            options={["Healthy", "Average", "Poor"]}
+          />
+          <FormSelect
+            label="Salt Intake"
+            name="salt_intake"
+            value={formData.salt_intake}
+            onChange={(value) => handleSelectChange("salt_intake", value)}
+            placeholder="Select Salt Intake"
+            options={["Low", "Moderate", "High"]}
+          />
+          <FormSelect
+            label="Exercise"
+            name="exercise"
+            value={formData.exercise}
+            onChange={(value) => handleSelectChange("exercise", value)}
+            placeholder="Select Exercise Level"
+            options={["Often", "Rarely", "Never"]}
+          />
+          <FormSelect
+            label="Smoker"
+            name="smoker"
+            value={formData.smoker}
+            onChange={(value) => handleSelectChange("smoker", value)}
+            placeholder="Are you a Smoker?"
+            options={["No", "Yes"]}
+          />
+          <FormSelect
+            label="Alcohol Consumption"
+            name="alcohol"
+            value={formData.alcohol}
+            onChange={(value) => handleSelectChange("alcohol", value)}
+            placeholder="Do you consume Alcohol?"
+            options={["No", "Yes"]}
+          />
+          <FormInput
+            label="Previous Conditions"
+            name="prev_conditions"
+            type="text"
+            placeholder="e.g., Hypertension"
+            value={formData.prev_conditions}
+            onChange={handleFormChange}
+          />
+          <FormInput
+            label="Height (cm)"
+            name="height"
+            type="number"
+            placeholder="Height (cm)"
+            value={formData.height}
+            onChange={handleFormChange}
+          />
+          <FormInput
+            label="Weight (kg)"
+            name="weight"
+            type="number"
+            placeholder="Weight (kg)"
+            value={formData.weight}
+            onChange={handleFormChange}
+          />
         </div>
-
-        {/* Camera Preview */}
-        <div className="relative">
-          <div className="bg-gray-900 rounded-lg overflow-hidden aspect-video">
-            {error ? (
-              <div className="flex items-center justify-center h-full text-white text-center p-4">
-                <div>
-                  <Icon name="camera" className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                  <p className="text-red-400 mb-4">{error}</p>
-                  <Button variant="outline" size="sm" onClick={startCamera}>
-                    Try Again
-                  </Button>
-                </div>
+        <Button type="submit" className="w-full">
+          Proceed to Camera
+        </Button>
+      </form>
+    </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="aspect-video bg-black rounded-lg overflow-hidden relative">
+            <video ref={videoRef} autoPlay muted className="w-full h-full object-cover" />
+            {!cameraReady && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 text-white">
+                Starting camera...
               </div>
-            ) : (
-              <>
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  className="w-full h-full object-cover"
-                  style={{ transform: 'scaleX(-1)' }}
-                />
-                
-                {/* Camera Status Overlay */}
-                {!cameraReady && (
-                  <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
-                    <div className="text-white text-center">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-                      <p>Starting camera...</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Detection Overlay */}
-                {isLoading && (
-                  <div className="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
-                    <div className="text-white text-center">
-                      <div className="animate-pulse">
-                        <Icon name="heart" className="w-12 h-12 mx-auto mb-4 text-red-400" />
-                      </div>
-                      <p className="text-lg font-semibold mb-2">Analyzing...</p>
-                      <p className="text-sm">Detecting facial blood flow patterns</p>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Face Detection Guide */}
-                {cameraReady && !isLoading && (
-                  <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <div className="w-64 h-64 border-2 border-green-400 rounded-full opacity-50"></div>
-                    </div>
-                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded text-sm">
-                      Position your face in the circle
-                    </div>
-                  </div>
-                )}
-              </>
             )}
           </div>
+          <canvas ref={canvasRef} className="hidden" />
+          <div className="flex justify-between">
+            <Button onClick={detectBP} disabled={isLoading || !cameraReady}>
+              {isLoading ? 'Detecting...' : 'Detect BP'}
+            </Button>
+            <Button onClick={handleClose} variant="outline" disabled={isLoading}>Cancel</Button>
+          </div>
         </div>
-
-        {/* Hidden canvas for frame capture */}
-        <canvas ref={canvasRef} className="hidden" />
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            variant="primary"
-            className="flex-1"
-            onClick={detectBP}
-            disabled={!cameraReady || isLoading || !!error}
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Detecting...
-              </>
-            ) : (
-              <>
-                <Icon name="heart" className="w-4 h-4 mr-2" />
-                Detect BP
-              </>
-            )}
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            disabled={isLoading}
-            className="sm:w-auto"
-          >
-            Cancel
-          </Button>
-        </div>
-
-        {/* Tips */}
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-semibold text-[#2196F3] mb-2">Tips for best results:</h4>
-          <ul className="text-sm text-[#424242] space-y-1">
-            <li>• Ensure good lighting on your face</li>
-            <li>• Keep your face steady and look at the camera</li>
-            <li>• Remove glasses if possible</li>
-            <li>• Stay still during the 4-second analysis</li>
-          </ul>
-        </div>
-      </div>
+      )}
     </Modal>
   );
 };
