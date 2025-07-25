@@ -8,7 +8,9 @@ import io
 import os  # Required to read PORT env variable
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)   
+
+
 
 # --- Initialize ML models when the API server starts ---
 def initialize_ml_service():
@@ -99,8 +101,8 @@ def predict_health():
     else:
         return jsonify({"error": "Failed to predict blood pressure. Internal server error."}), 500
 
-
-if __name__ == '__main__':
+ 
+if __name__ == '__main__':  
     initialize_ml_service()
     port = int(os.environ.get("PORT", 5000))  # required for Railway/Render
     app.run(host='0.0.0.0', port=port)
