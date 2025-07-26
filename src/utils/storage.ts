@@ -1,4 +1,4 @@
-import { BPReading, Meal, User } from '../types';
+ 
 
 const STORAGE_KEYS = {
   USER: 'bp_fuel_user',

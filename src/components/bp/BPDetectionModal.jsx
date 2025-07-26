@@ -111,7 +111,7 @@ export const BPDetectionModal = ({ isOpen, onClose, onResult }) => {
       };
 console.log('Payload:', payload);
 
-      const response = await fetch("http://127.0.0.1:5000/predict_health", {
+      const response = await fetch("https://ahmadraza161-bp-fuel-12.hf.space/predict_health", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
