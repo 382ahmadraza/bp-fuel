@@ -1,7 +1,9 @@
 // import FoodAnalyzer from "../components/food-analyzer"
 // import SetupGuide from "@/components/setup-guide"
 
-import FoodAnalyzer from "../components/meal/food-analysis"
+import FoodAnalyzer from "../components/meal/food-analysis";
+
+// import FoodAnalyzer from "../components/meal/food-analysis"
 
 export default function Home() {
   // Check if API key is configured
