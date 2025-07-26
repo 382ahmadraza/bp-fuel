@@ -1,5 +1,5 @@
-import { useState, useRef } from "react"
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import { useState, useRef } from "react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import {
   Upload,
   Camera,
@@ -11,29 +11,34 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-} from "lucide-react"
+} from "lucide-react";
 // import { Button } from "/components/ui/button"
-import { Button } from "../shared/common/custom-button"
-import { Card, CardContent, CardHeader, CardTitle } from "../shared/common/card"
-import { Alert, AlertDescription } from "../shared/common/alert"
-import { Badge } from "../shared/common/badge"
-import {storage} from "../../utils/storage"
+import { Button } from "../shared/common/custom-button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../shared/common/card";
+import { Alert, AlertDescription } from "../shared/common/alert";
+import { Badge } from "../shared/common/badge";
+import { storage } from "../../utils/storage";
 // import DietPlanGenerator from "./diet-plan-generator"
 
 const FoodAnalyzer = () => {
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysis, setAnalysis] = useState(null)
-  const [error, setError] = useState(null)
-  const [showDietPlan, setShowDietPlan] = useState(false)
-  const fileInputRef = useRef(null)
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState(null);
+  const [error, setError] = useState(null);
+  const [showDietPlan, setShowDietPlan] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Use environment variable for API key with better validation
-const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+  const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
 
   // Add debugging information (remove in production)
-  console.log("API Key exists:", !!apiKey)
-  console.log("API Key length:", apiKey?.length || 0)
+  console.log("API Key exists:", !!apiKey);
+  console.log("API Key length:", apiKey?.length || 0);
 
   if (!apiKey) {
     return (
@@ -61,7 +66,9 @@ const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
                 <li>Create a new API key</li>
                 <li>
                   Add it to your .env.local file as:{" "}
-                  <code className="bg-gray-100 px-1 rounded">NEXT_PUBLIC_GOOGLE_AI_API_KEY=your_key_here</code>
+                  <code className="bg-gray-100 px-1 rounded">
+                    NEXT_PUBLIC_GOOGLE_AI_API_KEY=your_key_here
+                  </code>
                 </li>
                 <li>Restart your development server</li>
               </ol>
@@ -69,7 +76,7 @@ const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
           </AlertDescription>
         </Alert>
       </div>
-    )
+    );
   }
 
   // Validate API key format
@@ -79,77 +86,90 @@ const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
         <Alert className="border-red-200 bg-red-50">
           <AlertCircle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
-            The API key appears to be invalid (too short). Please check your NEXT_PUBLIC_GOOGLE_AI_API_KEY in .env.local
+            The API key appears to be invalid (too short). Please check your
+            NEXT_PUBLIC_GOOGLE_AI_API_KEY in .env.local
           </AlertDescription>
         </Alert>
       </div>
-    )
+    );
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey)
+  const genAI = new GoogleGenerativeAI(apiKey);
 
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.readAsDataURL(file)
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
       reader.onload = () => {
-        const base64String = reader.result
-        resolve(base64String.split(",")[1]) // Remove data:image/jpeg;base64, prefix
-      }
-      reader.onerror = (error) => reject(error)
-    })
-  }
+        const base64String = reader.result;
+        resolve(base64String.split(",")[1]); // Remove data:image/jpeg;base64, prefix
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
 
   const parseAnalysisResponse = (response) => {
     // Try to extract structured information from the response
-    const lines = response.split("\n").filter((line) => line.trim())
-    let foodName = "Unknown Food"
-    let description = ""
-    let ingredients = []
-    let nutrition = []
-    let healthImpacts = []
+    const lines = response.split("\n").filter((line) => line.trim());
+    let foodName = "Unknown Food";
+    let description = "";
+    let ingredients = [];
+    let nutrition = [];
+    let healthImpacts = [];
     const bloodPressure = {
       impact: "neutral",
       rating: 5,
       reasons: [],
       recommendations: [],
       sodiumLevel: "moderate",
-    }
+    };
 
     // Extract food name (look for patterns like "Food Name:" or first line)
-    const nameMatch = response.match(/(?:Food Name|Dish Name|Item Name):\s*([^\n]+)/i)
+    const nameMatch = response.match(
+      /(?:Food Name|Dish Name|Item Name):\s*([^\n]+)/i
+    );
     if (nameMatch) {
-      foodName = nameMatch[1].trim()
+      foodName = nameMatch[1].trim();
     } else {
       // Try to get from first meaningful line
       const firstLine = lines.find(
-        (line) => !line.includes("analyze") && !line.includes("image") && line.length > 3 && line.length < 50,
-      )
+        (line) =>
+          !line.includes("analyze") &&
+          !line.includes("image") &&
+          line.length > 3 &&
+          line.length < 50
+      );
       if (firstLine) {
-        foodName = firstLine.replace(/[*#]/g, "").trim()
+        foodName = firstLine.replace(/[*#]/g, "").trim();
       }
     }
 
     // Extract description - look for longer descriptive text
-    const descMatch = response.match(/(?:Description|Overview):\s*([^\n]+(?:\n[^\n:]+)*)/i)
+    const descMatch = response.match(
+      /(?:Description|Overview):\s*([^\n]+(?:\n[^\n:]+)*)/i
+    );
     if (descMatch) {
-      description = descMatch[1].trim()
+      description = descMatch[1].trim();
     } else {
       // Find the longest paragraph as description
-      const paragraphs = response.split("\n\n").filter((p) => p.length > 50 && p.length < 300)
+      const paragraphs = response
+        .split("\n\n")
+        .filter((p) => p.length > 50 && p.length < 300);
       if (paragraphs.length > 0) {
-        description = paragraphs[0].replace(/[*#]/g, "").trim()
+        description = paragraphs[0].replace(/[*#]/g, "").trim();
       }
     }
 
     // Extract ingredients with better parsing
-    const ingredientsMatch = response.match(/(?:Ingredients|Components):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i)
+    const ingredientsMatch = response.match(
+      /(?:Ingredients|Components):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i
+    );
     if (ingredientsMatch) {
       ingredients = ingredientsMatch[1]
         .split(/[,\n]/)
         .map((ing) => ing.replace(/[-*•]/g, "").trim())
         .filter((ing) => ing.length > 2 && ing.length < 30)
-        .slice(0, 10) // Increased to 10 ingredients
+        .slice(0, 10); // Increased to 10 ingredients
     }
 
     // Enhanced nutrition extraction with more patterns
@@ -164,7 +184,7 @@ const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
       /cholesterol:?\s*(\d+(?:\.\d+)?)\s*mg/i,
       /calcium:?\s*(\d+(?:\.\d+)?)\s*mg/i,
       /iron:?\s*(\d+(?:\.\d+)?)\s*mg/i,
-    ]
+    ];
 
     const nutritionNames = [
       "Calories",
@@ -177,83 +197,106 @@ const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
       "Cholesterol",
       "Calcium",
       "Iron",
-    ]
+    ];
 
-    const nutritionUnits = ["kcal", "g", "g", "g", "g", "g", "mg", "mg", "mg", "mg"]
+    const nutritionUnits = [
+      "kcal",
+      "g",
+      "g",
+      "g",
+      "g",
+      "g",
+      "mg",
+      "mg",
+      "mg",
+      "mg",
+    ];
 
     nutritionPatterns.forEach((pattern, index) => {
-      const match = response.match(pattern)
+      const match = response.match(pattern);
       if (match) {
         nutrition.push({
           name: nutritionNames[index],
           value: match[1],
           unit: nutritionUnits[index],
-        })
+        });
       }
-    })
+    });
 
     // Extract health impacts with better parsing
-    const healthMatch = response.match(/(?:Health|Benefits|Impact):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i)
+    const healthMatch = response.match(
+      /(?:Health|Benefits|Impact):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i
+    );
     if (healthMatch) {
       healthImpacts = healthMatch[1]
         .split(/[,\n]/)
         .map((impact) => impact.replace(/[-*•]/g, "").trim())
         .filter((impact) => impact.length > 10 && impact.length < 100)
-        .slice(0, 6) // Increased to 6 impacts
+        .slice(0, 6); // Increased to 6 impacts
     }
 
     // Extract Blood Pressure Information
-    const bpMatch = response.match(/(?:Blood Pressure|BP Impact):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i)
+    const bpMatch = response.match(
+      /(?:Blood Pressure|BP Impact):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i
+    );
     if (bpMatch) {
-      const bpText = bpMatch[1].toLowerCase()
+      const bpText = bpMatch[1].toLowerCase();
 
       // Determine impact
-      if (bpText.includes("good") || bpText.includes("beneficial") || bpText.includes("helps lower")) {
-        bloodPressure.impact = "good"
-        bloodPressure.rating = Math.floor(Math.random() * 3) + 7 // 7-9
+      if (
+        bpText.includes("good") ||
+        bpText.includes("beneficial") ||
+        bpText.includes("helps lower")
+      ) {
+        bloodPressure.impact = "good";
+        bloodPressure.rating = Math.floor(Math.random() * 3) + 7; // 7-9
       } else if (
         bpText.includes("bad") ||
         bpText.includes("harmful") ||
         bpText.includes("raises") ||
         bpText.includes("increases")
       ) {
-        bloodPressure.impact = "bad"
-        bloodPressure.rating = Math.floor(Math.random() * 4) + 2 // 2-5
+        bloodPressure.impact = "bad";
+        bloodPressure.rating = Math.floor(Math.random() * 4) + 2; // 2-5
       } else {
-        bloodPressure.impact = "neutral"
-        bloodPressure.rating = Math.floor(Math.random() * 3) + 5 // 5-7
+        bloodPressure.impact = "neutral";
+        bloodPressure.rating = Math.floor(Math.random() * 3) + 5; // 5-7
       }
 
       // Extract reasons and recommendations
-      const reasonsMatch = response.match(/(?:BP Reasons|Reasons):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i)
+      const reasonsMatch = response.match(
+        /(?:BP Reasons|Reasons):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i
+      );
       if (reasonsMatch) {
         bloodPressure.reasons = reasonsMatch[1]
           .split(/[,\n]/)
           .map((reason) => reason.replace(/[-*•]/g, "").trim())
           .filter((reason) => reason.length > 10)
-          .slice(0, 4)
+          .slice(0, 4);
       }
 
-      const recMatch = response.match(/(?:BP Recommendations|Recommendations):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i)
+      const recMatch = response.match(
+        /(?:BP Recommendations|Recommendations):\s*((?:[^\n]+\n?)*?)(?:\n\n|\n[A-Z]|$)/i
+      );
       if (recMatch) {
         bloodPressure.recommendations = recMatch[1]
           .split(/[,\n]/)
           .map((rec) => rec.replace(/[-*•]/g, "").trim())
           .filter((rec) => rec.length > 10)
-          .slice(0, 4)
+          .slice(0, 4);
       }
     }
 
     // Determine sodium level from nutrition data
-    const sodiumInfo = nutrition.find((n) => n.name === "Sodium")
+    const sodiumInfo = nutrition.find((n) => n.name === "Sodium");
     if (sodiumInfo) {
-      const sodiumValue = Number.parseFloat(sodiumInfo.value.replace("~", ""))
+      const sodiumValue = Number.parseFloat(sodiumInfo.value.replace("~", ""));
       if (sodiumValue < 140) {
-        bloodPressure.sodiumLevel = "low"
+        bloodPressure.sodiumLevel = "low";
       } else if (sodiumValue > 400) {
-        bloodPressure.sodiumLevel = "high"
+        bloodPressure.sodiumLevel = "high";
       } else {
-        bloodPressure.sodiumLevel = "moderate"
+        bloodPressure.sodiumLevel = "moderate";
       }
     }
 
@@ -267,58 +310,60 @@ const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
         { name: "Fiber", value: "~4", unit: "g" },
         { name: "Sugar", value: "~8", unit: "g" },
         { name: "Sodium", value: "~320", unit: "mg" },
-      ]
+      ];
     }
 
     if (description === "") {
       description =
-        "A delicious and nutritious food item with a balanced combination of flavors and textures. This dish appears to be carefully prepared with quality ingredients."
+        "A delicious and nutritious food item with a balanced combination of flavors and textures. This dish appears to be carefully prepared with quality ingredients.";
     }
 
     // Fallback BP data if not extracted
     if (bloodPressure.reasons.length === 0) {
-      const sodiumInfo = nutrition.find((n) => n.name === "Sodium")
-      const sodiumValue = sodiumInfo ? Number.parseFloat(sodiumInfo.value.replace("~", "")) : 320
+      const sodiumInfo = nutrition.find((n) => n.name === "Sodium");
+      const sodiumValue = sodiumInfo
+        ? Number.parseFloat(sodiumInfo.value.replace("~", ""))
+        : 320;
 
       if (sodiumValue > 400) {
-        bloodPressure.impact = "bad"
-        bloodPressure.rating = 3
+        bloodPressure.impact = "bad";
+        bloodPressure.rating = 3;
         bloodPressure.reasons = [
           "High sodium content can increase blood pressure",
           "May contribute to fluid retention",
           "Could strain cardiovascular system",
-        ]
+        ];
         bloodPressure.recommendations = [
           "Limit portion size to reduce sodium intake",
           "Drink plenty of water to help flush excess sodium",
           "Balance with low-sodium foods throughout the day",
-        ]
+        ];
       } else if (sodiumValue < 140) {
-        bloodPressure.impact = "good"
-        bloodPressure.rating = 8
+        bloodPressure.impact = "good";
+        bloodPressure.rating = 8;
         bloodPressure.reasons = [
           "Low sodium content supports healthy blood pressure",
           "Won't contribute to fluid retention",
           "Heart-friendly option",
-        ]
+        ];
         bloodPressure.recommendations = [
           "Great choice for blood pressure management",
           "Can be included regularly in a heart-healthy diet",
           "Pair with other low-sodium foods",
-        ]
+        ];
       } else {
-        bloodPressure.impact = "neutral"
-        bloodPressure.rating = 6
+        bloodPressure.impact = "neutral";
+        bloodPressure.rating = 6;
         bloodPressure.reasons = [
           "Moderate sodium content",
           "Neither particularly beneficial nor harmful for BP",
           "Can be part of a balanced diet",
-        ]
+        ];
         bloodPressure.recommendations = [
           "Monitor overall daily sodium intake",
           "Balance with low-sodium foods",
           "Consider portion control",
-        ]
+        ];
       }
     }
 
@@ -329,17 +374,17 @@ const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
       nutrition,
       healthImpacts,
       bloodPressure,
-    }
-  }
+    };
+  };
 
   const analyzeImage = async (base64Image, mimeType) => {
     try {
-      setIsAnalyzing(true)
-      setError(null)
+      setIsAnalyzing(true);
+      setError(null);
 
-      console.log("Starting analysis with API key length:", apiKey.length)
+      console.log("Starting analysis with API key length:", apiKey.length);
 
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       const prompt = `As a professional nutritionist and food analyst with expertise in cardiovascular health, please provide a comprehensive analysis of this food image. Structure your response exactly as follows:
 
@@ -369,127 +414,135 @@ BP Reasons: [List 3-4 specific reasons why this food is good/bad/neutral for blo
 
 BP Recommendations: [Provide 3-4 specific recommendations for people with blood pressure concerns, including portion control, preparation modifications, or dietary balance suggestions.]
 
-Please be specific, accurate, and professional in your analysis. Focus on providing actionable nutritional and cardiovascular health insights.`
+Please be specific, accurate, and professional in your analysis. Focus on providing actionable nutritional and cardiovascular health insights.`;
 
       const imagePart = {
         inlineData: {
           data: base64Image,
           mimeType: mimeType,
         },
-      }
+      };
 
-      const result = await model.generateContent([prompt, imagePart])
-      const response = await result.response
-      const text = response.text()
+      const result = await model.generateContent([prompt, imagePart]);
+      const response = await result.response;
+      const text = response.text();
 
-      const parsedAnalysis = parseAnalysisResponse(text)
-      setAnalysis(parsedAnalysis)
+      const parsedAnalysis = parseAnalysisResponse(text);
+      setAnalysis(parsedAnalysis);
 
       storage.addMeal({
-  id: Date.now(),
-  image: "data:" + mimeType + ";base64," + base64Image,
-  result: text, // full Gemini response text
-  timestamp: new Date().toISOString(),
-})
-
-
+        id: Date.now(),
+        image: "data:" + mimeType + ";base64," + base64Image,
+        result: text, // full Gemini response text
+        timestamp: new Date().toISOString(),
+      });
     } catch (err) {
-      console.error("Analysis error:", err)
+      console.error("Analysis error:", err);
 
       // More specific error messages
       if (err.message?.includes("API_KEY_INVALID")) {
-        setError("Invalid API key. Please check your Google AI API key in the environment variables.")
+        setError(
+          "Invalid API key. Please check your Google AI API key in the environment variables."
+        );
       } else if (err.message?.includes("PERMISSION_DENIED")) {
-        setError("API key doesn't have permission to access Gemini API. Please check your API key settings.")
+        setError(
+          "API key doesn't have permission to access Gemini API. Please check your API key settings."
+        );
       } else if (err.message?.includes("QUOTA_EXCEEDED")) {
-        setError("API quota exceeded. Please check your Google AI usage limits.")
+        setError(
+          "API quota exceeded. Please check your Google AI usage limits."
+        );
       } else if (err.message?.includes("MODEL_NOT_FOUND")) {
-        setError("The Gemini model is not available. Please try again later.")
+        setError("The Gemini model is not available. Please try again later.");
       } else {
-        setError(`Analysis failed: ${err.message || "Unknown error"}. Please try again with a different image.`)
+        setError(
+          `Analysis failed: ${
+            err.message || "Unknown error"
+          }. Please try again with a different image.`
+        );
       }
     } finally {
-      setIsAnalyzing(false)
+      setIsAnalyzing(false);
     }
-  }
+  };
 
   const handleImageUpload = async (event) => {
-    const file = event.target.files?.[0]
-    if (!file) return
+    const file = event.target.files?.[0];
+    if (!file) return;
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      setError("Please select a valid image file.")
-      return
+      setError("Please select a valid image file.");
+      return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setError("Image size should be less than 5MB.")
-      return
+      setError("Image size should be less than 5MB.");
+      return;
     }
 
     try {
-      const base64 = await convertToBase64(file)
-      const imageUrl = URL.createObjectURL(file)
-      setSelectedImage(imageUrl)
-      setAnalysis(null)
-      setError(null)
-      setShowDietPlan(false)
+      const base64 = await convertToBase64(file);
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedImage(imageUrl);
+      setAnalysis(null);
+      setError(null);
+      setShowDietPlan(false);
 
       // Start analysis
-      await analyzeImage(base64, file.type)
+      await analyzeImage(base64, file.type);
     } catch (err) {
-      setError("Failed to process the image. Please try again.")
+      setError("Failed to process the image. Please try again.");
     }
-  }
+  };
 
   const handleUploadClick = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   const resetAnalyzer = () => {
-    setSelectedImage(null)
-    setAnalysis(null)
-    setError(null)
-    setShowDietPlan(false)
+    setSelectedImage(null);
+    setAnalysis(null);
+    setError(null);
+    setShowDietPlan(false);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const getBPIcon = (impact) => {
     switch (impact) {
       case "good":
-        return <TrendingDown className="w-5 h-5 text-green-600" />
+        return <TrendingDown className="w-5 h-5 text-green-600" />;
       case "bad":
-        return <TrendingUp className="w-5 h-5 text-red-600" />
+        return <TrendingUp className="w-5 h-5 text-red-600" />;
       default:
-        return <Minus className="w-5 h-5 text-yellow-600" />
+        return <Minus className="w-5 h-5 text-yellow-600" />;
     }
-  }
+  };
 
   const getBPColor = (impact) => {
     switch (impact) {
       case "good":
-        return "from-green-500 to-emerald-600"
+        return "from-green-500 to-emerald-600";
       case "bad":
-        return "from-red-500 to-rose-600"
+        return "from-red-500 to-rose-600";
       default:
-        return "from-yellow-500 to-amber-600"
+        return "from-yellow-500 to-amber-600";
     }
-  }
+  };
 
   const getBPBadgeColor = (impact) => {
     switch (impact) {
       case "good":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-100 text-green-800 border-green-200";
       case "bad":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
@@ -503,11 +556,18 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                   <Camera className="w-8 h-8 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Upload Food Image</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    Upload Food Image
+                  </h3>
                   <p className="text-gray-600 mb-4">
-                    Select a clear image of food for AI-powered nutritional analysis with blood pressure insights
+                    Select a clear image of food for AI-powered nutritional
+                    analysis with blood pressure insights
                   </p>
-                  <Button onClick={handleUploadClick} className="bg-green-600 hover:bg-green-700 text-white" size="lg">
+                  <Button
+                    onClick={handleUploadClick}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    size="lg"
+                  >
                     <Upload className="w-4 h-4 mr-2" />
                     Choose Image
                   </Button>
@@ -545,7 +605,13 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
         </CardContent>
       </Card>
 
-      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        className="hidden"
+      />
 
       {/* Error Alert */}
       {error && (
@@ -562,9 +628,12 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
             <div className="text-center space-y-4">
               <Loader2 className="w-8 h-8 animate-spin text-green-600 mx-auto" />
               <div>
-                <h3 className="text-lg font-semibold text-gray-800">Analyzing Your Food...</h3>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Analyzing Your Food...
+                </h3>
                 <p className="text-gray-600">
-                  AI is examining the image and calculating nutritional information with blood pressure insights
+                  AI is examining the image and calculating nutritional
+                  information with blood pressure insights
                 </p>
               </div>
             </div>
@@ -583,7 +652,9 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                   <Utensils className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold mb-2 tracking-tight">{analysis.foodName}</h1>
+                  <h1 className="text-4xl font-bold mb-2 tracking-tight">
+                    {analysis.foodName}
+                  </h1>
                   <div className="w-24 h-1 bg-white/40 mx-auto rounded-full mb-4"></div>
                   <p className="text-green-50 text-lg max-w-3xl mx-auto leading-relaxed font-light">
                     {analysis.description}
@@ -609,7 +680,9 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
 
           {/* Blood Pressure Impact Section */}
           <Card
-            className={`bg-gradient-to-br ${getBPColor(analysis.bloodPressure.impact)} text-white shadow-xl border-0`}
+            className={`bg-gradient-to-br ${getBPColor(
+              analysis.bloodPressure.impact
+            )} text-white shadow-xl border-0`}
           >
             <CardHeader className="pb-4">
               <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
@@ -624,10 +697,16 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                 <div className="flex items-center gap-4">
                   {getBPIcon(analysis.bloodPressure.impact)}
                   <div>
-                    <Badge className={`${getBPBadgeColor(analysis.bloodPressure.impact)} text-lg px-4 py-2`}>
+                    <Badge
+                      className={`${getBPBadgeColor(
+                        analysis.bloodPressure.impact
+                      )} text-lg px-4 py-2`}
+                    >
                       {analysis.bloodPressure.impact.toUpperCase()} FOR BP
                     </Badge>
-                    <p className="text-white/90 mt-2">BP Health Rating: {analysis.bloodPressure.rating}/10</p>
+                    <p className="text-white/90 mt-2">
+                      BP Health Rating: {analysis.bloodPressure.rating}/10
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -637,8 +716,8 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                       analysis.bloodPressure.sodiumLevel === "low"
                         ? "bg-green-100 text-green-800"
                         : analysis.bloodPressure.sodiumLevel === "high"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
                     } mt-1`}
                   >
                     {analysis.bloodPressure.sodiumLevel.toUpperCase()}
@@ -654,7 +733,10 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                   </h4>
                   <div className="space-y-2">
                     {analysis.bloodPressure.reasons.map((reason, index) => (
-                      <div key={index} className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
+                      <div
+                        key={index}
+                        className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
+                      >
                         <p className="text-white/90 text-sm">{reason}</p>
                       </div>
                     ))}
@@ -667,11 +749,16 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                     BP Management Tips
                   </h4>
                   <div className="space-y-2">
-                    {analysis.bloodPressure.recommendations.map((rec, index) => (
-                      <div key={index} className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                        <p className="text-white/90 text-sm">{rec}</p>
-                      </div>
-                    ))}
+                    {analysis.bloodPressure.recommendations.map(
+                      (rec, index) => (
+                        <div
+                          key={index}
+                          className="bg-white/10 backdrop-blur-sm rounded-lg p-3"
+                        >
+                          <p className="text-white/90 text-sm">{rec}</p>
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               </div>
@@ -688,7 +775,10 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                   </div>
                   <div>
                     <h3 className="text-xl font-bold">AI-Powered Diet Plan</h3>
-                    <p className="text-purple-100">Get a custom meal plan specifically for {analysis.foodName}</p>
+                    <p className="text-purple-100">
+                      Get a custom meal plan specifically for{" "}
+                      {analysis.foodName}
+                    </p>
                   </div>
                 </div>
                 <Button
@@ -704,7 +794,9 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
           {/* Enhanced Nutrition Grid */}
           <div className="space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Nutritional Breakdown</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Nutritional Breakdown
+              </h2>
               <p className="text-gray-600">Estimated values per serving</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -729,7 +821,14 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                       <div
                         className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-1000"
                         style={{
-                          width: `${Math.min(100, (Number.parseFloat(nutrient.value.replace("~", "")) / 50) * 100)}%`,
+                          width: `${Math.min(
+                            100,
+                            (Number.parseFloat(
+                              nutrient.value.replace("~", "")
+                            ) /
+                              50) *
+                              100
+                          )}%`,
                         }}
                       ></div>
                     </div>
@@ -749,7 +848,9 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                   </div>
                   Key Ingredients & Components
                 </CardTitle>
-                <p className="text-gray-600 text-sm">Main ingredients identified in this dish</p>
+                <p className="text-gray-600 text-sm">
+                  Main ingredients identified in this dish
+                </p>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -760,7 +861,9 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                     >
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-amber-400 rounded-full flex-shrink-0"></div>
-                        <span className="text-sm font-medium text-gray-700 truncate">{ingredient}</span>
+                        <span className="text-sm font-medium text-gray-700 truncate">
+                          {ingredient}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -779,7 +882,9 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                   </div>
                   Health Impact & Nutritional Benefits
                 </CardTitle>
-                <p className="text-gray-600 text-sm">Professional assessment of health implications</p>
+                <p className="text-gray-600 text-sm">
+                  Professional assessment of health implications
+                </p>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="grid md:grid-cols-2 gap-4">
@@ -793,7 +898,9 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
                           <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm text-gray-700 leading-relaxed">{impact}</p>
+                          <p className="text-sm text-gray-700 leading-relaxed">
+                            {impact}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -808,12 +915,14 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
             <CardContent className="p-6">
               <div className="text-center space-y-2">
                 <p className="text-sm text-gray-600">
-                  <strong>Disclaimer:</strong> Nutritional values and blood pressure assessments are AI-estimated and
-                  may vary based on preparation methods, portion sizes, and specific ingredients used.
+                  <strong>Disclaimer:</strong> Nutritional values and blood
+                  pressure assessments are AI-estimated and may vary based on
+                  preparation methods, portion sizes, and specific ingredients
+                  used.
                 </p>
                 <p className="text-xs text-gray-500">
-                  For precise nutritional information and medical advice, consult with a registered dietitian or
-                  healthcare provider.
+                  For precise nutritional information and medical advice,
+                  consult with a registered dietitian or healthcare provider.
                 </p>
               </div>
             </CardContent>
@@ -822,12 +931,14 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
       )}
 
       {/* Diet Plan Generator Modal */}
-      {showDietPlan && analysis && <div>
-        {/* <DietPlanGenerator foodAnalysis={analysis} onClose={() => setShowDietPlan(false)} /> */}
-        hi
-        </div>}
+      {showDietPlan && analysis && (
+        <div>
+          {/* <DietPlanGenerator foodAnalysis={analysis} onClose={() => setShowDietPlan(false)} /> */}
+          hi
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default FoodAnalyzer
+export default FoodAnalyzer;
