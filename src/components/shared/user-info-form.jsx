@@ -1,5 +1,3 @@
- 
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/form-input"
@@ -14,7 +12,7 @@ export default function HealthForm() {
     exercise: "Often",
     smoker: "No",
     alcohol: "No",
-    prev_conditions: "",
+    prev_conditions: "normal",
     height: "",
     weight: "",
   })
@@ -27,14 +25,14 @@ export default function HealthForm() {
     }))
   }
 
-  const handleSelectChange = (name: string, value: string) => {
+  const handleSelectChange = (name , value ) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }))
   }
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (e ) => {
     e.preventDefault()
     console.log("Form Data Submitted:", formData)
     // Add your logic to proceed to camera or other actions here
@@ -94,22 +92,22 @@ export default function HealthForm() {
             placeholder="Are you a Smoker?"
             options={["No", "Yes"]}
           />
-          <FormSelect
+          {/* <FormSelect
             label="Alcohol Consumption"
             name="alcohol"
             value={formData.alcohol}
             onChange={(value) => handleSelectChange("alcohol", value)}
             placeholder="Do you consume Alcohol?"
             options={["No", "Yes"]}
-          />
-          <FormInput
+          /> */}
+          {/* <FormInput
             label="Previous Conditions"
             name="prev_conditions"
             type="text"
             placeholder="e.g., Hypertension"
             value={formData.prev_conditions}
             onChange={handleFormChange}
-          />
+          /> */}
           <FormInput
             label="Height (cm)"
             name="height"

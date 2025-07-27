@@ -1,9 +1,9 @@
-import React from 'react';
-import { Container } from '../components/shared/layout/Container';
-import { Heading } from '../components/shared/common/Heading';
-import { Button } from '../components/shared/common/Button';
-import { Icon } from '../assets/icons';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Container } from "../components/shared/layout/Container";
+import { Heading } from "../components/shared/common/Heading";
+import { Button } from "../components/shared/common/Button";
+import { Icon } from "../assets/icons";
+import { useNavigate } from "react-router-dom";
 
 export const ProgressTracking = () => {
   const navigate = useNavigate();
@@ -16,21 +16,28 @@ export const ProgressTracking = () => {
             Progress <span className="text-[#FF9800]">Tracking</span>
           </Heading>
           <p className="text-xl text-[#424242] max-w-2xl mx-auto">
-            Monitor your health journey with detailed progress tracking and analytics
+            Monitor your health journey with detailed progress tracking and
+            analytics
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           <div className="bg-white p-8 rounded-xl shadow-lg">
-            <h3 className="text-2xl font-semibold text-[#212121] mb-6">Blood Pressure Trends</h3>
+            <h3 className="text-2xl font-semibold text-[#212121] mb-6">
+              Blood Pressure Trends
+            </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-[#FAFAFA] rounded-lg">
                 <span className="text-[#424242]">Weekly Average</span>
-                <span className="font-semibold text-[#4CAF50]">120/80 mmHg</span>
+                <span className="font-semibold text-[#4CAF50]">
+                  120/80 mmHg
+                </span>
               </div>
               <div className="flex items-center justify-between p-4 bg-[#FAFAFA] rounded-lg">
                 <span className="text-[#424242]">Monthly Trend</span>
-                <span className="font-semibold text-[#4CAF50]">↓ Improving</span>
+                <span className="font-semibold text-[#4CAF50]">
+                  ↓ Improving
+                </span>
               </div>
               <div className="flex items-center justify-between p-4 bg-[#FAFAFA] rounded-lg">
                 <span className="text-[#424242]">Readings This Month</span>
@@ -40,7 +47,9 @@ export const ProgressTracking = () => {
           </div>
 
           <div className="bg-white p-8 rounded-xl shadow-lg">
-            <h3 className="text-2xl font-semibold text-[#212121] mb-6">Nutrition Progress</h3>
+            <h3 className="text-2xl font-semibold text-[#212121] mb-6">
+              Nutrition Progress
+            </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-[#FAFAFA] rounded-lg">
                 <span className="text-[#424242]">Healthy Meals</span>
@@ -59,7 +68,9 @@ export const ProgressTracking = () => {
         </div>
 
         <div className="bg-white p-8 rounded-xl shadow-lg mb-8">
-          <h3 className="text-2xl font-semibold text-[#212121] mb-6">Health Goals</h3>
+          <h3 className="text-2xl font-semibold text-[#212121] mb-6">
+            Health Goals
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center p-6 bg-green-50 rounded-lg">
               <div className="w-16 h-16 bg-[#4CAF50] rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -74,9 +85,13 @@ export const ProgressTracking = () => {
               <div className="w-16 h-16 bg-[#2196F3] rounded-full mx-auto mb-4 flex items-center justify-center">
                 <Icon name="utensils" className="w-8 h-8 text-white" />
               </div>
-              <h4 className="font-semibold text-[#212121] mb-2">Healthy Eating</h4>
+              <h4 className="font-semibold text-[#212121] mb-2">
+                Healthy Eating
+              </h4>
               <div className="text-2xl font-bold text-[#2196F3] mb-2">78%</div>
-              <p className="text-[#424242] text-sm">Target: 80% healthy meals</p>
+              <p className="text-[#424242] text-sm">
+                Target: 80% healthy meals
+              </p>
             </div>
 
             <div className="text-center p-6 bg-orange-50 rounded-lg">
@@ -91,10 +106,10 @@ export const ProgressTracking = () => {
         </div>
 
         <div className="text-center">
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             size="lg"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
           >
             View Detailed Dashboard
           </Button>

@@ -12,7 +12,6 @@ import {
   TrendingDown,
   Minus,
 } from "lucide-react";
-// import { Button } from "/components/ui/button"
 import { Button } from "../shared/common/custom-button";
 import {
   Card,
@@ -23,7 +22,6 @@ import {
 import { Alert, AlertDescription } from "../shared/common/alert";
 import { Badge } from "../shared/common/badge";
 import { storage } from "../../utils/storage";
-// import DietPlanGenerator from "./diet-plan-generator"
 
 const FoodAnalyzer = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -36,8 +34,6 @@ const FoodAnalyzer = () => {
   // Use environment variable for API key with better validation
   const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
 
-  // Add debugging information (remove in production)
-  // console.log("API Key exists:", !!apiKey);
   console.log("API Key length:", apiKey?.length || 0);
 
   if (!apiKey) {

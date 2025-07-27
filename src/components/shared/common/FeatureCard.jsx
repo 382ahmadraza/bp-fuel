@@ -1,53 +1,53 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { Icon } from '../../../assets/icons';
+import React from "react";
+import { Link } from "react-router-dom";
+// import { HeartIcon, FoodIcon, ChartIcon, ReportIcon } from '../../../assets/icons';
 
-export const FeatureCard = ({ 
-  title, 
-  description, 
-  icon, 
-  route, 
-  color = '#4CAF50',
-  onClick,
-  className = ''
+const FeatureCard = ({
+  title,
+  description,
+  table,
+  icon,
+  route,
+  color = "bg-white",
+  textColor = "text-heading",
+  iconColor = "text-primary",
+  hover = true,
+  className = "",
 }) => {
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    if (onClick) {
-      onClick();
-    } else if (route) {
-      navigate(route);
-    }
-  };
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.02, y: -5 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2 }}
-      onClick={handleClick}
-      className={`
-        bg-white p-6 rounded-xl shadow-lg border border-[#E0E0E0] 
-        hover:shadow-xl transition-all duration-300 cursor-pointer
-        group ${className}
-      `}
-    >
-      <div 
-        className="w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
-        style={{ backgroundColor: `${color}20` }}
+    <Link to={route} className="block">
+      <article
+        className={`${color} rounded-xl shadow-sm border border-borders p-6 transition-all duration-300 ${
+          hover ? "hover:shadow-lg hover:scale-105 hover:-translate-y-1" : ""
+        } ${className}`}
+        style={{
+          transformOrigin: "center",
+          willChange: "transform, box-shadow",
+        }}
       >
-        <Icon name={icon} className="w-6 h-6" style={{ color }} />
-      </div>
-      
-      <h3 className="text-xl font-semibold text-[#212121] mb-2 group-hover:text-[#4CAF50] transition-colors">
-        {title}
-      </h3>
-      
-      <p className="text-[#424242] leading-relaxed">
-        {description}
-      </p>
-    </motion.div>
+        <div className=" ">
+          <div className="  mb-4">{icon}</div>
+
+          <h3 className={`text-xl font-semibold ${textColor} mb-3`}>{title}</h3>
+          <p className="text-mutedText leading-relaxed">{description}</p>
+          {table && table.length > 0 && (
+            <ul className="mt-4 space-y-2">
+              {table.map((item, index) => (
+                <li
+                  key={index}
+                  className="flex items-center text-sm text-gray-700"
+                >
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3 flex-shrink-0"></span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </article>
+    </Link>
   );
 };
+
+export default FeatureCard;

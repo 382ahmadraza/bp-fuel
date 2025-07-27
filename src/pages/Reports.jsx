@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Container } from '../components/shared/layout/Container';
-import { Heading } from '../components/shared/common/Heading';
-import { Button } from '../components/shared/common/Button';
-import { Icon } from '../assets/icons';
-import { storage } from '../utils/storage';
-import { getBPLevel } from '../utils/health';
-import toast from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import { Container } from "../components/shared/layout/Container";
+import { Heading } from "../components/shared/common/Heading";
+import { Button } from "../components/shared/common/Button";
+import { Icon } from "../assets/icons";
+import { storage } from "../utils/storage";
+import { getBPLevel } from "../utils/health";
+import toast from "react-hot-toast";
 
 export const Reports = () => {
   const [bpReadings, setBpReadings] = useState([]);
@@ -24,50 +24,64 @@ export const Reports = () => {
     const last7Days = new Date();
     last7Days.setDate(last7Days.getDate() - 7);
 
-    const recentBP = bpData.filter(reading => 
-      new Date(reading.date) >= last7Days
+    const recentBP = bpData.filter(
+      (reading) => new Date(reading.date) >= last7Days
     );
 
-    const recentMeals = mealData.filter(meal => 
-      new Date(meal.date) >= last7Days
+    const recentMeals = mealData.filter(
+      (meal) => new Date(meal.date) >= last7Days
     );
 
-    const avgSystolic = recentBP.length > 0 
-      ? Math.round(recentBP.reduce((sum, reading) => sum + reading.systolic, 0) / recentBP.length)
-      : 0;
+    const avgSystolic =
+      recentBP.length > 0
+        ? Math.round(
+            recentBP.reduce((sum, reading) => sum + reading.systolic, 0) /
+              recentBP.length
+          )
+        : 0;
 
-    const avgDiastolic = recentBP.length > 0 
-      ? Math.round(recentBP.reduce((sum, reading) => sum + reading.diastolic, 0) / recentBP.length)
-      : 0;
+    const avgDiastolic =
+      recentBP.length > 0
+        ? Math.round(
+            recentBP.reduce((sum, reading) => sum + reading.diastolic, 0) /
+              recentBP.length
+          )
+        : 0;
 
-    const avgCalories = recentMeals.length > 0 
-      ? Math.round(recentMeals.reduce((sum, meal) => sum + meal.calories, 0) / recentMeals.length)
-      : 0;
+    const avgCalories =
+      recentMeals.length > 0
+        ? Math.round(
+            recentMeals.reduce((sum, meal) => sum + meal.calories, 0) /
+              recentMeals.length
+          )
+        : 0;
 
-    const healthyMeals = recentMeals.filter(meal => meal.isHealthy).length;
-    const healthyMealPercentage = recentMeals.length > 0 
-      ? Math.round((healthyMeals / recentMeals.length) * 100)
-      : 0;
+    const healthyMeals = recentMeals.filter((meal) => meal.isHealthy).length;
+    const healthyMealPercentage =
+      recentMeals.length > 0
+        ? Math.round((healthyMeals / recentMeals.length) * 100)
+        : 0;
 
-    const bpLevel = avgSystolic > 0 && avgDiastolic > 0 
-      ? getBPLevel(avgSystolic, avgDiastolic)
-      : null;
+    const bpLevel =
+      avgSystolic > 0 && avgDiastolic > 0
+        ? getBPLevel(avgSystolic, avgDiastolic)
+        : null;
 
     setReportData({
-      period: '7 days',
+      period: "7 days",
       bpReadings: recentBP.length,
       mealsLogged: recentMeals.length,
       avgSystolic,
       avgDiastolic,
       avgCalories,
       healthyMealPercentage,
-      bpLevel
+      bpLevel,
     });
   };
 
   const downloadReport = () => {
     if (!reportData) {
-      toast.error('No data available for report');
+      toast.error("No data available for report");
       return;
     }
 
@@ -79,7 +93,9 @@ Report Period: Last ${reportData.period}
 === BLOOD PRESSURE SUMMARY ===
 Total Readings: ${reportData.bpReadings}
 Average BP: ${reportData.avgSystolic}/${reportData.avgDiastolic} mmHg
-${reportData.bpLevel ? `Status: ${reportData.bpLevel.label}` : 'Status: No data'}
+${
+  reportData.bpLevel ? `Status: ${reportData.bpLevel.label}` : "Status: No data"
+}
 
 === NUTRITION SUMMARY ===
 Meals Logged: ${reportData.mealsLogged}
@@ -87,36 +103,59 @@ Average Daily Calories: ${reportData.avgCalories}
 Healthy Meals: ${reportData.healthyMealPercentage}%
 
 === RECOMMENDATIONS ===
-${reportData.bpLevel?.level === 'normal' ? '✓ Your blood pressure is in the normal range. Keep up the good work!' : ''}
-${reportData.bpLevel?.level === 'elevated' ? '⚠ Your blood pressure is elevated. Consider lifestyle modifications.' : ''}
-${reportData.bpLevel?.level === 'high1' || reportData.bpLevel?.level === 'high2' ? '⚠ Your blood pressure is high. Consult with your healthcare provider.' : ''}
-${reportData.healthyMealPercentage >= 70 ? '✓ Great job maintaining a healthy diet!' : '⚠ Try to include more healthy meals in your diet.'}
+${
+  reportData.bpLevel?.level === "normal"
+    ? "✓ Your blood pressure is in the normal range. Keep up the good work!"
+    : ""
+}
+${
+  reportData.bpLevel?.level === "elevated"
+    ? "⚠ Your blood pressure is elevated. Consider lifestyle modifications."
+    : ""
+}
+${
+  reportData.bpLevel?.level === "high1" || reportData.bpLevel?.level === "high2"
+    ? "⚠ Your blood pressure is high. Consult with your healthcare provider."
+    : ""
+}
+${
+  reportData.healthyMealPercentage >= 70
+    ? "✓ Great job maintaining a healthy diet!"
+    : "⚠ Try to include more healthy meals in your diet."
+}
 
 === DETAILED DATA ===
 Recent BP Readings:
-${bpReadings.slice(0, 10).map(reading => 
-  `${reading.date} ${reading.time}: ${reading.systolic}/${reading.diastolic} mmHg`
-).join('\n')}
+${bpReadings
+  .slice(0, 10)
+  .map(
+    (reading) =>
+      `${reading.date} ${reading.time}: ${reading.systolic}/${reading.diastolic} mmHg`
+  )
+  .join("\n")}
 
 Recent Meals:
-${meals.slice(0, 10).map(meal => 
-  `${meal.date} ${meal.time}: ${meal.name} (${meal.calories} cal)`
-).join('\n')}
+${meals
+  .slice(0, 10)
+  .map(
+    (meal) => `${meal.date} ${meal.time}: ${meal.name} (${meal.calories} cal)`
+  )
+  .join("\n")}
 
 Generated by BP-Fuel Health Monitoring App
     `;
 
-    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const blob = new Blob([reportContent], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `bp-fuel-report-${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `bp-fuel-report-${new Date().toISOString().split("T")[0]}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
-    toast.success('Report downloaded successfully!');
+
+    toast.success("Report downloaded successfully!");
   };
 
   if (!reportData) {
@@ -125,7 +164,9 @@ Generated by BP-Fuel Health Monitoring App
         <Container>
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4CAF50] mx-auto"></div>
-            <p className="mt-4 text-[#424242]">Generating your health report...</p>
+            <p className="mt-4 text-[#424242]">
+              Generating your health report...
+            </p>
           </div>
         </Container>
       </main>
@@ -140,7 +181,8 @@ Generated by BP-Fuel Health Monitoring App
             Health <span className="text-[#2196F3]">Reports</span>
           </Heading>
           <p className="text-[#424242] text-center">
-            Comprehensive analysis of your health data from the last {reportData.period}
+            Comprehensive analysis of your health data from the last{" "}
+            {reportData.period}
           </p>
         </div>
 
@@ -159,7 +201,7 @@ Generated by BP-Fuel Health Monitoring App
                   {reportData.avgSystolic}/{reportData.avgDiastolic}
                 </div>
                 {reportData.bpLevel && (
-                  <div 
+                  <div
                     className="text-sm font-medium mt-1"
                     style={{ color: reportData.bpLevel.color }}
                   >
@@ -197,9 +239,7 @@ Generated by BP-Fuel Health Monitoring App
             <div className="text-2xl font-bold text-[#212121]">
               {reportData.avgCalories}
             </div>
-            <div className="text-sm text-[#9E9E9E]">
-              Per day
-            </div>
+            <div className="text-sm text-[#9E9E9E]">Per day</div>
           </div>
 
           <div className="bg-white p-6 rounded-xl shadow-lg">
@@ -212,9 +252,7 @@ Generated by BP-Fuel Health Monitoring App
             <div className="text-2xl font-bold text-[#212121]">
               {reportData.healthyMealPercentage}%
             </div>
-            <div className="text-sm text-[#9E9E9E]">
-              Of total meals
-            </div>
+            <div className="text-sm text-[#9E9E9E]">Of total meals</div>
           </div>
         </div>
 
@@ -248,7 +286,7 @@ Generated by BP-Fuel Health Monitoring App
                     {reportData.bpLevel && (
                       <div className="flex justify-between items-center">
                         <span className="text-[#424242]">Status:</span>
-                        <span 
+                        <span
                           className="font-semibold"
                           style={{ color: reportData.bpLevel.color }}
                         >
@@ -257,25 +295,28 @@ Generated by BP-Fuel Health Monitoring App
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="p-4 bg-blue-50 rounded-lg">
-                    <h5 className="font-semibold text-[#2196F3] mb-2">Recommendations:</h5>
+                    <h5 className="font-semibold text-[#2196F3] mb-2">
+                      Recommendations:
+                    </h5>
                     <ul className="text-sm text-[#424242] space-y-1">
-                      {reportData.bpLevel?.level === 'normal' && (
+                      {reportData.bpLevel?.level === "normal" && (
                         <>
                           <li>• Continue your healthy lifestyle</li>
                           <li>• Maintain regular exercise routine</li>
                           <li>• Keep monitoring regularly</li>
                         </>
                       )}
-                      {reportData.bpLevel?.level === 'elevated' && (
+                      {reportData.bpLevel?.level === "elevated" && (
                         <>
                           <li>• Consider lifestyle modifications</li>
                           <li>• Reduce sodium intake</li>
                           <li>• Increase physical activity</li>
                         </>
                       )}
-                      {(reportData.bpLevel?.level === 'high1' || reportData.bpLevel?.level === 'high2') && (
+                      {(reportData.bpLevel?.level === "high1" ||
+                        reportData.bpLevel?.level === "high2") && (
                         <>
                           <li>• Consult with healthcare provider</li>
                           <li>• Monitor daily and keep records</li>
@@ -286,7 +327,9 @@ Generated by BP-Fuel Health Monitoring App
                   </div>
                 </div>
               ) : (
-                <p className="text-[#9E9E9E]">No BP readings available for analysis</p>
+                <p className="text-[#9E9E9E]">
+                  No BP readings available for analysis
+                </p>
               )}
             </div>
 
@@ -300,11 +343,17 @@ Generated by BP-Fuel Health Monitoring App
                   <div className="p-4 bg-[#FAFAFA] rounded-lg">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[#424242]">Meals Logged:</span>
-                      <span className="font-semibold">{reportData.mealsLogged}</span>
+                      <span className="font-semibold">
+                        {reportData.mealsLogged}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-[#424242]">Avg Daily Calories:</span>
-                      <span className="font-semibold">{reportData.avgCalories}</span>
+                      <span className="text-[#424242]">
+                        Avg Daily Calories:
+                      </span>
+                      <span className="font-semibold">
+                        {reportData.avgCalories}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-[#424242]">Healthy Meals:</span>
@@ -313,9 +362,11 @@ Generated by BP-Fuel Health Monitoring App
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="p-4 bg-orange-50 rounded-lg">
-                    <h5 className="font-semibold text-[#FF9800] mb-2">Nutrition Tips:</h5>
+                    <h5 className="font-semibold text-[#FF9800] mb-2">
+                      Nutrition Tips:
+                    </h5>
                     <ul className="text-sm text-[#424242] space-y-1">
                       {reportData.healthyMealPercentage >= 70 ? (
                         <>
@@ -334,7 +385,9 @@ Generated by BP-Fuel Health Monitoring App
                   </div>
                 </div>
               ) : (
-                <p className="text-[#9E9E9E]">No meal data available for analysis</p>
+                <p className="text-[#9E9E9E]">
+                  No meal data available for analysis
+                </p>
               )}
             </div>
           </div>
@@ -342,26 +395,26 @@ Generated by BP-Fuel Health Monitoring App
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             className="h-16"
-            onClick={() => window.location.href = '/bp-check'}
+            onClick={() => (window.location.href = "/bp-check")}
           >
             <Icon name="heart" className="w-5 h-5 mr-2" />
             Check BP Now
           </Button>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             className="h-16"
-            onClick={() => window.location.href = '/meal-check'}
+            onClick={() => (window.location.href = "/meal-check")}
           >
             <Icon name="camera" className="w-5 h-5 mr-2" />
             Log Meal
           </Button>
-          <Button 
-            variant="accent" 
+          <Button
+            variant="accent"
             className="h-16"
-            onClick={() => window.location.href = '/dashboard'}
+            onClick={() => (window.location.href = "/dashboard")}
           >
             <Icon name="dashboard" className="w-5 h-5 mr-2" />
             View Dashboard

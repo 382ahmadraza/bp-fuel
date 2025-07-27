@@ -1,39 +1,27 @@
-export const featuresData = [
-  {
-    title: "BP Detection",
-    description: "Monitor your blood pressure with intelligent analysis and get instant health insights.",
-    icon: "heart",
-    route: "/bp-check",
-    color: "#F44336"
-  },
-  {
-    title: "Meal Analysis",
-    description: "Upload meal photos for nutritional analysis and personalized dietary recommendations.",
-    icon: "camera",
-    route: "/meal-check",
-    color: "#4CAF50"
-  },
-  {
-    title: "Health Dashboard",
-    description: "Track your health progress with comprehensive charts and analytics.",
-    icon: "dashboard",
-    route: "/dashboard",
-    color: "#2196F3"
-  },
-  {
-    title: "Smart Reports",
-    description: "Generate detailed health reports and download them for your records.",
-    icon: "download",
-    route: "/reports",
-    color: "#FF9800"
-  }
-];
+
 
 export const statsData = [
-  { label: "Active Users", value: "10K+", icon: "users", color: "#4CAF50" },
-  { label: "BP Readings", value: "50K+", icon: "heart", color: "#F44336" },
-  { label: "Meals Analyzed", value: "25K+", icon: "utensils", color: "#FF9800" },
-  { label: "Reports Generated", value: "5K+", icon: "fileText", color: "#2196F3" }
+  {
+    id: 'bp-readings',
+    number: '1M+',
+    label: 'BP Readings Analyzed',
+    description: 'Accurate camera-based blood pressure monitoring',
+    icon: 'heart'
+  },
+  {
+    id: 'meals-analyzed',
+    number: '500K+',
+    label: 'Meals Analyzed',
+    description: 'AI-powered food recognition and nutrition analysis',
+    icon: 'food'
+  },
+  {
+    id: 'user-satisfaction',
+    number: '98%',
+    label: 'User Satisfaction',
+    description: 'Happy and healthy users worldwide',
+    icon: 'chart'
+  }
 ];
 
 export const teamData = [

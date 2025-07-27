@@ -1,5 +1,5 @@
-import React from 'react';
-import { Toaster as HotToaster } from 'react-hot-toast';
+import React from "react";
+import { Toaster as HotToaster } from "react-hot-toast";
 
 export const Toaster = () => {
   return (
@@ -8,23 +8,23 @@ export const Toaster = () => {
       toastOptions={{
         duration: 4000,
         style: {
-          background: '#FAFAFA',
-          color: '#424242',
-          border: '1px solid #E0E0E0',
-          borderRadius: '8px',
-          fontSize: '14px',
-          fontWeight: '500'
+          background: "#FAFAFA",
+          color: "#424242",
+          border: "1px solid #E0E0E0",
+          borderRadius: "8px",
+          fontSize: "14px",
+          fontWeight: "500",
         },
         success: {
           iconTheme: {
-            primary: '#4CAF50',
-            secondary: '#FAFAFA',
+            primary: "#4CAF50",
+            secondary: "#FAFAFA",
           },
         },
         error: {
           iconTheme: {
-            primary: '#F44336',
-            secondary: '#FAFAFA',
+            primary: "#F44336",
+            secondary: "#FAFAFA",
           },
         },
       }}

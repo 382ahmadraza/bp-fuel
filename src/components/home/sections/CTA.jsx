@@ -9,7 +9,7 @@ export const CTA = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-20 bg-[#FAFAFA]">
+    <section className="py-20 bg-primary/10">
       <Container>
         <div className="text-center">
           <Heading level={2} align="center" className="mb-6">

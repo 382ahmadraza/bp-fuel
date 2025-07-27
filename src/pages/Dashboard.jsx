@@ -6,7 +6,6 @@ import { Icon } from '../assets/icons';
 import { storage } from '../utils/storage';
 import { getBPLevel } from '../utils/health';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -39,9 +38,9 @@ export const Dashboard = () => {
       <Container>
         <div className="mb-8">
           <Heading level={1} align="center" className="mb-2">
-            Welcome <span className="text-[#4CAF50]">back</span>{user ? `, ${user.name}` : ''}!
+            Dash<span className="text-[#4CAF50]">board</span>{user ? `, ${user.name}` : ''}!
           </Heading>
-          <p className="text-[#424242] text-center">Here's your health overview for today</p>
+          <p className="text-mutedText text-center">Here's your health overview for today</p>
         </div>
 
         {/* Quick Stats */}

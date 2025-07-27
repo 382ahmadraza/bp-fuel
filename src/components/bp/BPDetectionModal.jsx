@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Modal } from "../shared/common/Modal";
 import { Button } from "../shared/common/Button";
-// import { Icon } from '../../assets/icons';
 import { storage } from "../../utils/storage";
 import { getBPLevel } from "../../utils/health";
 import toast from "react-hot-toast";
@@ -20,8 +19,8 @@ export const BPDetectionModal = ({ isOpen, onClose, onResult }) => {
     salt_intake: "",
     exercise: "",
     smoker: "", // 👈 was 'no '
-    alcohol: "", // 👈 was ' no'
-    prev_conditions: "",
+    alcohol: "no", // 👈 was ' no'
+    prev_conditions: "normal",
     height: "",
     weight: "",
     cholesterol: 1,
@@ -185,7 +184,7 @@ export const BPDetectionModal = ({ isOpen, onClose, onResult }) => {
       title="Blood Pressure Detection"
     >
       {!showCamera ? (
-        <div className="mx-auto max-w-lg p-6 bg-white rounded-lg shadow-md">
+        <div className="mx-auto max-w-3/2 p-6 bg-white rounded-lg shadow-md">
           <h2 className="text-2xl font-bold mb-6 text-center">
             Health Information
           </h2>
@@ -239,22 +238,22 @@ export const BPDetectionModal = ({ isOpen, onClose, onResult }) => {
                 placeholder="Are you a Smoker?"
                 options={["No", "Yes"]}
               />
-              <FormSelect
+              {/* <FormSelect
                 label="Alcohol Consumption"
                 name="alcohol"
                 value={formData.alcohol}
                 onChange={(value) => handleSelectChange("alcohol", value)}
                 placeholder="Do you consume Alcohol?"
                 options={["No", "Yes"]}
-              />
-              <FormInput
+              /> */}
+              {/* <FormInput
                 label="Previous Conditions"
                 name="prev_conditions"
                 type="text"
                 placeholder="e.g., Hypertension"
                 value={formData.prev_conditions}
                 onChange={handleFormChange}
-              />
+              /> */}
               <FormInput
                 label="Height (cm)"
                 name="height"

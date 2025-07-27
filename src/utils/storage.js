@@ -9,34 +9,34 @@ const STORAGE_KEYS = {
 
 export const storage = {
   // User data
-  getUser: (): User | null => {
+  getUser: ()  => {
     const user = localStorage.getItem(STORAGE_KEYS.USER);
     return user ? JSON.parse(user) : null;
   },
   
-  setUser: (user: User): void => {
+  setUser: (user ) => {
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
   },
 
   // BP readings
-  getBPReadings: (): BPReading[] => {
+  getBPReadings: () => {
     const readings = localStorage.getItem(STORAGE_KEYS.BP_READINGS);
     return readings ? JSON.parse(readings) : [];
   },
 
-  addBPReading: (reading: BPReading): void => {
+  addBPReading: (reading ) => {
     const readings = storage.getBPReadings();
     readings.unshift(reading);
     localStorage.setItem(STORAGE_KEYS.BP_READINGS, JSON.stringify(readings));
   },
 
   // Meals
-  getMeals: (): Meal[] => {
+  getMeals: ()  => {
     const meals = localStorage.getItem(STORAGE_KEYS.MEALS);
     return meals ? JSON.parse(meals) : [];
   },
 
-  addMeal: (meal: Meal): void => {
+  addMeal: (meal )  => {
     const meals = storage.getMeals();
     meals.unshift(meal);
     localStorage.setItem(STORAGE_KEYS.MEALS, JSON.stringify(meals));
