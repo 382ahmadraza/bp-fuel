@@ -8,7 +8,7 @@ import FoodAnalyzer from "../components/meal/food-analysis";
 export default function Home() {
   // Check if API key is configured
 // Vite-based React project
-const hasApiKey = !!import.meta.env.VITE_GOOGLE_AI_API_KEY;
+// const hasApiKey = !!import.meta.env.VITE_GOOGLE_AI_API_KEY;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
@@ -21,7 +21,9 @@ const hasApiKey = !!import.meta.env.VITE_GOOGLE_AI_API_KEY;
           </p>
         </div>
 
-        {hasApiKey && <FoodAnalyzer /> }
+         <>
+         <FoodAnalyzer /> 
+         </>
       </div>
     </div>
   )

@@ -37,7 +37,7 @@ const FoodAnalyzer = () => {
   const apiKey = import.meta.env.VITE_GOOGLE_AI_API_KEY;
 
   // Add debugging information (remove in production)
-  console.log("API Key exists:", !!apiKey);
+  // console.log("API Key exists:", !!apiKey);
   console.log("API Key length:", apiKey?.length || 0);
 
   if (!apiKey) {
