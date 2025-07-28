@@ -930,7 +930,7 @@ Please be specific, accurate, and professional in your analysis. Focus on provid
       {showDietPlan && analysis && (
         <div>
           {/* <DietPlanGenerator foodAnalysis={analysis} onClose={() => setShowDietPlan(false)} /> */}
-          hi
+          This feature is under development. Please check back later for the diet plan generator.
         </div>
       )}
     </div>

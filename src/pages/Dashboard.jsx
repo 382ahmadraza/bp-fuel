@@ -27,9 +27,21 @@ export const Dashboard = () => {
     new Date(reading.date).toDateString() === new Date().toDateString()
   );
 
+  console.log("Meals loaded:", meals);
   const todaysMeals = meals.filter(meal => 
     new Date(meal.date).toDateString() === new Date().toDateString()
   );
+  
+  // to extract the food name from the meal result
+const extractFoodName = (result) => {
+  if (!result || typeof result !== 'string') return 'Unknown Food';
+  const match = result.match(/Food Name:\s*(.+)/i);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+
+  return 'Unknown Food';
+};
 
   const totalCaloriesToday = todaysMeals.reduce((sum, meal) => sum + meal.calories, 0);
 
@@ -196,11 +208,11 @@ export const Dashboard = () => {
                 {meals.map((meal) => (
                   <div key={meal.id} className="flex items-center justify-between p-3 bg-[#FAFAFA] rounded-lg">
                     <div>
-                      <div className="font-semibold">{meal.name}</div>
-                      <div className="text-sm text-[#9E9E9E]">{meal.date} at {meal.time}</div>
+                      <div className="font-semibold">{extractFoodName(meal.result)}</div>
+                      <div className="text-sm text-[#9E9E9E]">{meal.date} at {meal.timestamp}</div>
                     </div>
                     <div className="text-right">
-                      <div className="font-semibold">{meal.calories} cal</div>
+                      {/* <div className="font-semibold">{extractCalories(meal.calories)} cal</div> */}
                       <div 
                         className="text-sm font-medium"
                         style={{ color: meal.isHealthy ? '#4CAF50' : '#FF9800' }}

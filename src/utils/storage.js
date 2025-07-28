@@ -37,6 +37,7 @@ export const storage = {
   },
 
   addMeal: (meal )  => {
+    meal.id = Date.now(); // Simple ID generation
     const meals = storage.getMeals();
     meals.unshift(meal);
     localStorage.setItem(STORAGE_KEYS.MEALS, JSON.stringify(meals));
